@@ -1,0 +1,4 @@
+discord.js
+mysql.connector
+uuid
+mysql2
