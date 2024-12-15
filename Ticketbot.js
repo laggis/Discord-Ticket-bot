@@ -11,14 +11,14 @@ const client = new Client({
     partials: [Partials.Message, Partials.Channel, Partials.Reaction]
 });
 
-const token = 'MTI1ODM3MjUzODI3OTM5OTU1NQ.GvaBSV.O96XQ1zvKlYmWpL493FMhy30aMR42SQ3DaqAmc'; // Replace with your bot token
-const channelId = '1229133904141615174'; // Replace with your ticket channel ID
-const supportCategoryId = '1229144666738266224'; // Replace with your Support category ID
-const kopCategoryId = '1229147319245738014'; // Replace with your Köp category ID
-const ovrigtCategoryId = '1229149408919162951'; // Replace with your Övrigt category ID
-const panelCategoryId = '1229474583304732693'; // Replace with your Panel category ID
-const supportRoleId = '1229151956346605730'; // Replace with your support role ID
-const transcriptChannelId = '1269765120884609105'; // Replace with the channel ID where transcripts should be sent
+const token = ''; // Replace with your bot token
+const channelId = ''; // Replace with your ticket channel ID
+const supportCategoryId = ''; // Replace with your Support category ID
+const kopCategoryId = ''; // Replace with your Köp category ID
+const ovrigtCategoryId = ''; // Replace with your Övrigt category ID
+const panelCategoryId = ''; // Replace with your Panel category ID
+const supportRoleId = ''; // Replace with your support role ID
+const transcriptChannelId = ''; // Replace with the channel ID where transcripts should be sent
 
 const categoryMap = {
     'Support': supportCategoryId,
@@ -34,7 +34,7 @@ const pool = mysql.createPool({
     user: 'Discordbot',
     password: 'Discordbot',
     database: 'discordbot',
-    port: 3307, // Change to port 3307
+    port: 3306, // Change to port 3307
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
