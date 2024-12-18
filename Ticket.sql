@@ -1,7 +1,7 @@
 -- --------------------------------------------------------
--- Host:                         127.0.0.1
--- Server version:               8.0.40 - MySQL Community Server - GPL
--- Server OS:                    Win64
+-- Värd:                         127.0.0.1
+-- Serverversion:                10.4.32-MariaDB - mariadb.org binary distribution
+-- Server-OS:                    Win64
 -- HeidiSQL Version:             12.8.0.6908
 -- --------------------------------------------------------
 
@@ -15,24 +15,35 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 
--- Dumping database structure for discordbot
-CREATE DATABASE IF NOT EXISTS `discordbot` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+-- Dumpar databasstruktur för discordbot
+CREATE DATABASE IF NOT EXISTS `discordbot` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `discordbot`;
 
--- Dumping structure for table discordbot.tickets
+-- Dumpar struktur för tabell discordbot.banned_users
+CREATE TABLE IF NOT EXISTS `banned_users` (
+  `user_id` varchar(20) NOT NULL,
+  `reason` text NOT NULL,
+  `banned_by` varchar(100) NOT NULL,
+  `banned_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Dumpar data för tabell discordbot.banned_users: ~0 rows (ungefär)
+
+-- Dumpar struktur för tabell discordbot.tickets
 CREATE TABLE IF NOT EXISTS `tickets` (
-  `id` varchar(36) COLLATE utf8mb4_general_ci NOT NULL,
-  `type` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `status` varchar(50) COLLATE utf8mb4_general_ci DEFAULT 'Öppen',
-  `priority` varchar(50) COLLATE utf8mb4_general_ci DEFAULT 'Low',
-  `created_by` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `created_by_id` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` varchar(36) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `status` varchar(50) DEFAULT 'Öppen',
+  `priority` varchar(50) DEFAULT 'Low',
+  `created_by` varchar(255) NOT NULL,
+  `created_by_id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
   `closed_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table discordbot.tickets: ~0 rows (approximately)
+-- Dumpar data för tabell discordbot.tickets: ~0 rows (ungefär)
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
