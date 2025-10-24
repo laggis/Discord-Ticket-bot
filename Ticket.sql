@@ -1,52 +1,32 @@
--- --------------------------------------------------------
--- Värd:                         127.0.0.1
--- Serverversion:                10.4.32-MariaDB - mariadb.org binary distribution
--- Server-OS:                    Win64
--- HeidiSQL Version:             12.8.0.6908
--- --------------------------------------------------------
+-- Discord Ticket Bot schema
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
-
--- Dumpar databasstruktur för discordbot
-CREATE DATABASE IF NOT EXISTS `discordbot` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
+CREATE DATABASE IF NOT EXISTS `discordbot` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `discordbot`;
 
--- Dumpar struktur för tabell discordbot.banned_users
+-- Banned users: stores users blocked from creating tickets
 CREATE TABLE IF NOT EXISTS `banned_users` (
-  `user_id` varchar(20) NOT NULL,
-  `reason` text NOT NULL,
-  `banned_by` varchar(100) NOT NULL,
-  `banned_at` timestamp NULL DEFAULT current_timestamp(),
+  `user_id` VARCHAR(20) NOT NULL,
+  `reason` TEXT NOT NULL,
+  `banned_by` VARCHAR(20) NOT NULL,
+  `banned_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumpar data för tabell discordbot.banned_users: ~0 rows (ungefär)
-
--- Dumpar struktur för tabell discordbot.tickets
+-- Tickets: stores ticket metadata used by the bot
 CREATE TABLE IF NOT EXISTS `tickets` (
-  `id` varchar(36) NOT NULL,
-  `type` varchar(50) NOT NULL,
-  `status` varchar(50) DEFAULT 'Öppen',
-  `priority` varchar(50) DEFAULT 'Low',
-  `created_by` varchar(255) NOT NULL,
-  `created_by_id` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `closed_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `id` VARCHAR(36) NOT NULL,
+  `type` VARCHAR(50) NOT NULL,
+  `status` VARCHAR(50) NOT NULL DEFAULT 'Öppen',
+  `created_by` VARCHAR(255) NOT NULL,
+  `created_by_id` VARCHAR(20) NOT NULL,
+  `subject` VARCHAR(255) DEFAULT NULL,
+  `description` TEXT DEFAULT NULL,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `closed_at` TIMESTAMP NULL DEFAULT NULL,
+  `closed_by_id` VARCHAR(20) DEFAULT NULL,
+  `close_reason` TEXT DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_tickets_created_by_id` (`created_by_id`),
+  KEY `idx_tickets_status` (`status`),
+  KEY `idx_tickets_type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Dumpar data för tabell discordbot.tickets: ~0 rows (ungefär)
-
-/*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
-/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
-/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;

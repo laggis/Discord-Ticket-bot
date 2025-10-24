@@ -1,101 +1,102 @@
 # Discord Ticket Bot
 
-A feature-rich Discord bot for managing support tickets with multiple categories and MySQL database integration.
-
-![Ticket Bot](ticket.png)
+A Discord.js v14 ticket system with mod‑log, transcripts, cooldowns, and duplicate‑panel protection.
 
 ## Features
+- Ticket panel with buttons for `Support`, `Köp`, `Övrigt`, `Panel`.
+- Slash commands: `/ticket ban`, `/ticket unban`, `/close <ticket_id>`.
+- Mod‑log embeds for banned‑attempts, bans, unbans, closes, unauthorized closes.
+- Per‑user cooldowns: create 15s; staff moderation 5s; close (command & button) 5s.
+- HTML transcript generation posted to a transcript channel.
+- Transcript is also DM’d to the ticket opener on close (if DMs are open).
+- Auto‑deletes the ticket channel after close (configurable delay).
+- Persistent panel memory: stores the panel message id to avoid duplicate panels after restarts.
 
-- **Multiple Ticket Categories:**
-  - Support
-  - Purchase (Köp)
-  - Other (Övrigt)
-  - Panel
+## Requirements
+- Node.js 18+ (recommended).
+- A Discord application/bot added to your server.
+- MySQL reachable from the bot.
 
-- **Ticket Management:**
-  - Create tickets with unique IDs
-  - Automatic category-based channel creation
-  - Ticket status tracking
-  - Ticket closing functionality
-  - Ticket transcripts
-  - Support for custom descriptions
+## Environment Variables (.env)
+Set these before running:
+- `BOT_TOKEN` – Discord bot token
+- `TICKET_CHANNEL_ID` – Channel for the ticket panel
+- `SUPPORT_CATEGORY_ID`, `KOP_CATEGORY_ID`, `OVRIGT_CATEGORY_ID`, `PANEL_CATEGORY_ID` – Category ids for ticket channels
+- `SUPPORT_ROLE_IDS` – Comma‑separated role ids allowed to close tickets (fallback to `SUPPORT_ROLE_ID`)
+- `TRANSCRIPT_CHANNEL_ID` – Channel for HTML transcripts (optional but recommended)
+- `MOD_LOG_CHANNEL_ID` – Channel for moderation logs (optional)
+- `GUILD_ID` – If set, register commands only in this guild; otherwise global
+- `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_PORT` – MySQL connection
+- `TICKET_DELETE_DELAY_MS` – Delay before auto‑deleting a ticket channel after close (default `5000`)
 
-- **Database Integration:**
-  - MySQL database for persistent ticket storage
-  - Tracks ticket status, creators, and details
+Example for multiple support roles:
+- `SUPPORT_ROLE_IDS=985283578982195372, 985283646611136573`
 
-- **Role-Based Access:**
-  - Support role management
-  - Permission-based command access
-
-## Prerequisites
-
-- Node.js (v16.9.0 or higher)
-- MySQL Server
-- Discord Bot Token
-- Discord Server with appropriate permissions
-
-## Dependencies
-
-- discord.js: ^14.16.3
-- mysql2: ^3.11.4
-- uuid: ^11.0.3
-
-## Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/Discord-Ticket-bot.git
-cd Discord-Ticket-bot
+Example `.env` snippet:
+```
+BOT_TOKEN=your-bot-token
+TICKET_CHANNEL_ID=123456789012345678
+SUPPORT_ROLE_IDS=985283578982195372, 985283646611136573
+TRANSCRIPT_CHANNEL_ID=123456789012345678
+MOD_LOG_CHANNEL_ID=123456789012345678
+GUILD_ID=your-guild-id
+DB_HOST=localhost
+DB_USER=discord
+DB_PASSWORD=secret
+DB_NAME=discordbot
+DB_PORT=3307
+TICKET_DELETE_DELAY_MS=5000
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
 
-3. Set up your MySQL database:
-- Create a database named 'discordbot'
-- Import the provided `Ticket.sql` file
+## Install & Run
+1. `npm install`
+2. Ensure `.env` is configured.
+3. `node Ticketbot.js`
+4. Watch logs for: bot login and slash command registration.
 
-4. Configure the bot:
-- Open `Ticketbot.js`
-- Replace the following values:
-  - Bot token
-  - Channel IDs
-  - Category IDs
-  - Support role ID
-  - MySQL connection details
+## Commands & Flow
+- Click a panel button → modal → ticket channel created under the mapped category.
+- `/ticket ban @user [reason]` – prevents user from opening tickets (logged to mod‑log).
+- `/ticket unban @user` – removes ban (logged).
+- `/close <ticket_id>` or close button – closes ticket, generates transcript, updates DB, logs to mod‑log.
 
-## Usage
+## Cooldowns & Logging
+- Create: 15s per user; Staff moderation: 5s; Close: 5s.
+- Mod‑log includes actor, target, channel, ticket id, and reason when available.
 
-1. Start the bot:
-```bash
-node Ticketbot.js
-```
+## Transcripts
+- Bot fetches channel history, builds an HTML transcript, and posts it in `TRANSCRIPT_CHANNEL_ID`.
+- Transcript is also DM’d to the ticket opener on close (if DMs are open).
 
-2. The bot will create a ticket panel in the specified channel where users can:
-- Create tickets by category
-- View ticket status
-- Close tickets when resolved
+## Close Flow
+- Staff closes via `/close <ticket_id>` or the close button.
+- Bot generates the HTML transcript and posts in `TRANSCRIPT_CHANNEL_ID`.
+- Bot DMs the opener with the embed and the transcript.
+- Bot updates DB status to `Stängd` and removes opener’s view permission.
+- Bot posts a final embed in the channel and schedules deletion.
+- Channel is deleted after `TICKET_DELETE_DELAY_MS` (default 5s).
 
-## Commands
+## Panel Persistence
+- File `panel_state.json` is created automatically to store `{ channelId, messageId }`.
+- On restart the bot fetches that message and skips posting a new panel.
+- To force a new panel: delete `panel_state.json` and the old panel message.
 
-- `!close` - Close a ticket
-- Additional commands for ticket management and configuration
+## Notable Fixes & Improvements
+- Replaced deprecated `avatarURL()` with `displayAvatarURL()`.
+- Guarded permission overwrites; supports multiple support roles via `SUPPORT_ROLE_IDS`.
+- Switched button styles to `ButtonStyle` enums.
+- Removed duplicate top‑level command registration (fixed `await` syntax error).
+- Added duplicate panel protection and persistent memory.
 
-## Contributing
+## Troubleshooting
+- Commands not showing: check `GUILD_ID`, bot permissions, and give Discord a minute for global commands.
+- Mod‑log/transcript warnings: set corresponding channel ids in `.env`.
+- DMs missing: users may have server DMs disabled — transcript still posts to `TRANSCRIPT_CHANNEL_ID`.
+- Channel not deleted: ensure the bot has `Manage Channels` and `View Channel` in the ticket category; check `TICKET_DELETE_DELAY_MS` (default 5000).
+- Permission errors closing tickets: verify `SUPPORT_ROLE_IDS` (or `SUPPORT_ROLE_ID`) and role assignment.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support, please create an issue in the GitHub repository or contact the maintainers.
+## Roadmap
+- Log ticket creation/open events to mod‑log.
+- Add `/ticket escalate`, `/ticket reopen`, and `/ticket stats`.
+- Persist cooldowns (e.g., Redis/MySQL) for multi‑instance setups.
